@@ -18,18 +18,12 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+import pickle
 
 
 # Pretty display for notebooks
 #%matplotlib inline
 
-
-
-
-# Load the Census dataset
-data = pd.read_csv("census.csv")
-# Split the data into features and target label
-income_raw = data['income']
 
 def display_data():
     # Success - Display the first record
@@ -112,9 +106,22 @@ def train_predict(learner, sample_size, X_train, y_train, X_test, y_test):
     return results
 
 
-def evaluate():
+def storeTree(inputTree, filename):
+    fw = open(filename,'wb')
+    pickle.dump(inputTree,fw)
+    fw.close()
+
+
+def grabTree(filename):
+    fr = open(filename,'rb')
+    return pickle.load(fr)
+
+
+def evaluate(dataset, key_field):
+    income_raw = dataset[key_field]
+
     # 1. start of pre-processing data
-    features_raw = data.drop('income', axis = 1)
+    features_raw = dataset.drop(key_field, axis = 1)
 
     # Visualize skewed continuous features of original data
     # vs.distribution(data)
@@ -199,9 +206,8 @@ def evaluate():
 
     # 3. start of evaluation
     # TODO: Initialize the three models
-    clf_A = RandomForestClassifier()
-    clf_A.fit(X_train, y_train)
-    clf_B = DecisionTreeClassifier(random_state=0)
+    clf_random_forest = RandomForestClassifier()
+    clf_decision_tree = DecisionTreeClassifier(random_state=0)
     clf_C = SVC(kernel = 'rbf')
 
 
@@ -215,15 +221,27 @@ def evaluate():
 
     # Collect results on the learners
     results = {}
-    for clf in [clf_A, clf_B, clf_C]:
+    for clf in [clf_random_forest, clf_decision_tree, clf_C]:
         clf_name = clf.__class__.__name__
         results[clf_name] = {}
         for i, samples in enumerate([samples_1, samples_10, samples_100]):
             results[clf_name][i] = train_predict(clf, samples, X_train, y_train, X_test, y_test)
+            if clf == clf_decision_tree:
+                storeTree(clf, "../decision_tree/decision_tree")
+
 
     # Run metrics visualization for the three supervised learning models chosen
     vs.evaluate(results, accuracy, fscore)
     # 3. end of evaluation
 
 
-evaluate()
+dataset_map = {
+    '1': {'filename': 'census.csv', 'key_field': 'income'},
+    '2': {'filename': 'train.csv', 'key_field': 'exceeds50K'},
+}
+
+
+if __name__ == '__main__':
+    dataset_info = dataset_map.get('1')
+    data = pd.read_csv(dataset_info.get('filename'))
+    evaluate(data, dataset_info.get('key_field'))

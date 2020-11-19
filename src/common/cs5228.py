@@ -1,5 +1,6 @@
 '''
 Using tran.csv for evaluation
+Deprecated
 '''
 # Import libraries necessary for this project
 import numpy as np
