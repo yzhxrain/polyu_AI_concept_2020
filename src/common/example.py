@@ -17,6 +17,7 @@ from sklearn.metrics import fbeta_score,accuracy_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 
 
 # Pretty display for notebooks
@@ -198,9 +199,11 @@ def evaluate():
 
     # 3. start of evaluation
     # TODO: Initialize the three models
-    clf_A = GaussianNB()
+    clf_A = RandomForestClassifier()
+    clf_A.fit(X_train, y_train)
     clf_B = DecisionTreeClassifier(random_state=0)
     clf_C = SVC(kernel = 'rbf')
+
 
     # TODO: Calculate the number of samples for 1%, 10%, and 100% of the training data
     # HINT: samples_100 is the entire training set i.e. len(y_train)
