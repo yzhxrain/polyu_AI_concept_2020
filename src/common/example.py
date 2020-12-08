@@ -15,6 +15,7 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import fbeta_score,accuracy_score
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -209,7 +210,7 @@ def evaluate(dataset, key_field):
     clf_random_forest = RandomForestClassifier()
     clf_decision_tree = DecisionTreeClassifier(random_state=0)
     clf_C = SVC(kernel = 'rbf')
-
+    clf_M = MLPClassifier(solver='sgd',activation = 'identity',max_iter = 70,alpha = 1e-5,hidden_layer_sizes = (100,50),random_state = 1,verbose = False)
 
     # TODO: Calculate the number of samples for 1%, 10%, and 100% of the training data
     # HINT: samples_100 is the entire training set i.e. len(y_train)
@@ -221,13 +222,13 @@ def evaluate(dataset, key_field):
 
     # Collect results on the learners
     results = {}
-    for clf in [clf_random_forest, clf_decision_tree, clf_C]:
+    for clf in [clf_random_forest, clf_decision_tree, clf_C, clf_M]:
         clf_name = clf.__class__.__name__
         results[clf_name] = {}
         for i, samples in enumerate([samples_1, samples_10, samples_100]):
             results[clf_name][i] = train_predict(clf, samples, X_train, y_train, X_test, y_test)
             if clf == clf_decision_tree:
-                storeTree(clf, "../decision_tree/decision_tree")
+                storeTree(clf, "decision_tree")
 
 
     # Run metrics visualization for the three supervised learning models chosen
